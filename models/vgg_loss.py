@@ -7,7 +7,6 @@ class VGGLoss(nn.Module):
     def __init__(self):
         super(VGGLoss, self).__init__()
         vgg16 = models.vgg16(pretrained=True)
-        # Extract the desired feature maps
         self.feature_layers = nn.Sequential(
             vgg16.features[:4],  # relu1_2
             vgg16.features[4:9], # relu2_2

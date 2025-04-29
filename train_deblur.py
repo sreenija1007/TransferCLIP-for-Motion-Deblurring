@@ -12,15 +12,12 @@ from models.deblur_decoder import DeblurDecoder
 from datasets.gopro import GoProDataset
 
 def main(config_path, resume_ckpt=None):
-    # 1. Load config
     with open(config_path) as f:
         opt = yaml.safe_load(f)
 
-    # 2. Device
     device = torch.device("mps" if torch.backends.mps.is_available() and opt['training']['device']=='mps' else "cpu")
     print(f"⏱ Using device: {device}")
 
-    # 3. Data + split into train/val
 
     data_root = opt['data']['root']
     train_data_root = data_root
@@ -44,7 +41,7 @@ def main(config_path, resume_ckpt=None):
     val_loader   = DataLoader(val_ds,   batch_size=opt['training']['batch_size'],
                               shuffle=False, num_workers=2, pin_memory=True)
 
-    # 4. Models
+    # Models
     clip_extractor = CLIPFeatureExtractor(backbone=opt['model']['clip_backbone'], unfreeze_layer4 = opt['model']['unfreeze_layer4'],
                                           device=device).to(device)
     if opt['model'].get('reset_clip_params', False):
@@ -56,7 +53,7 @@ def main(config_path, resume_ckpt=None):
     
     
     
-    # 5. Optimizer
+    # Optimizer
     lr = float(opt['training']['lr'])
     trainable_params = decoder.parameters()
     
@@ -67,7 +64,7 @@ def main(config_path, resume_ckpt=None):
                            weight_decay=opt['training'].get('weight_decay', 0))
     
     
-    # 6. Resume logic
+    # Resume logic
     start_epoch = 1
     best_val    = float('inf')
     wait        = 0
@@ -80,11 +77,10 @@ def main(config_path, resume_ckpt=None):
             clip_extractor.reset_parameters()
             
         decoder.load_state_dict(ckpt['model_state'])
-        # optimizer.load_state_dict(ckpt['optimizer_state'])  # if saved
         start_epoch = ckpt['epoch'] + 1
         best_val    = ckpt.get('best_val_loss', best_val)
 
-    # 7. Training + Validation loops
+    # Training + Validation loops
     log_dir = opt['training']['log_dir']
     
     use_vgg_loss = opt['model'].get('use_vgg_loss', False)
@@ -158,8 +154,7 @@ def main(config_path, resume_ckpt=None):
             if wait >= patience:
                 print(f"⏸ Early stopping: no improvement in {patience} epochs.")
                 break
-
-        # ——— Periodic Checkpoint ———
+            
         if epoch % opt['training']['save_interval'] == 0:
             ckpt = {
                 'epoch': epoch,

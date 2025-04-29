@@ -11,8 +11,7 @@ from models.clip_feature_extractor import CLIPFeatureExtractor
 from models.deblur_decoder import DeblurDecoder
 from datasets.gopro import GoProDataset
 
-# If you want all test images, leave SELECTED empty or comment out the filter step.
-SELECTED = set()  # e.g. {'0010.png','0025.png'} to pick specific, or empty set for all
+SELECTED = set()  # {'0010.png','0025.png'} to pick specific
 
 def evaluate(model, extractor, loader, device, output_dir):
     os.makedirs(output_dir, exist_ok=True)
@@ -20,7 +19,6 @@ def evaluate(model, extractor, loader, device, output_dir):
     model.eval()
     with torch.no_grad():
         for blurry, sharp, fname in loader:
-            # fname is a tuple/list of one string
             fname = fname[0]
             blurry, sharp = blurry.to(device), sharp.to(device)
             feats = extractor(blurry)
@@ -35,7 +33,6 @@ def evaluate(model, extractor, loader, device, output_dir):
             m_ssim = ssim(s, p, channel_axis=2, data_range=2)
             records.append({'file': fname, 'psnr': m_psnr, 'ssim': m_ssim})
 
-            # save the three views
             save_image(blurry, os.path.join(output_dir, f"blur_{fname}"),
                        normalize=True, value_range=(-1,1))
             save_image(pred,   os.path.join(output_dir, f"pred_{fname}"),
@@ -55,11 +52,9 @@ if __name__ == '__main__':
     p.add_argument('--output',     type=str, default='results/deblur_test')
     args = p.parse_args()
 
-    # load config & device
     opt = yaml.safe_load(open(args.config))
     device = torch.device("mps" if torch.backends.mps.is_available() and opt['training']['device']=='mps' else "cpu")
 
-    # build full test dataset
     full_ds = GoProDataset(
         root=opt['data']['root'],
         mode='test',
@@ -67,7 +62,6 @@ if __name__ == '__main__':
         crops_per=1
     )
 
-    # optionally filter by SELECTED filenames
     if SELECTED:
         indices = [i for i,(b,_) in enumerate(full_ds.pairs) 
                    if os.path.basename(b) in SELECTED]

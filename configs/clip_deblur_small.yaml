@@ -1,7 +1,7 @@
 data:
   root: data/GoPro_sampled
   crop_size: 256
-  crops_per_image: 2
+  crops_per_image: 3
   use_sampled_data: True
 
 model:
@@ -16,10 +16,10 @@ model:
   reset_clip_parameters: False
 
 training:
-  batch_size: 8
+  batch_size: 16
   lr: 1e-4
-  epochs: 20
+  epochs: 25
   device: cuda
   save_interval: 5
   log_dir: runs/clip_deblur
-  early_stopping_patience: 3
+  early_stopping_patience: 5

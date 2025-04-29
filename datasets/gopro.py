@@ -16,7 +16,6 @@ class GoProDataset(Dataset):
         """
         self.mode = mode
         self.crop_size = crop_size
-        # Only train uses multiple random crops per image
         self.crops_per = crops_per if mode == 'train' else 1
 
         split_dir = os.path.join(root, mode)
@@ -31,7 +30,7 @@ class GoProDataset(Dataset):
             if os.path.exists(s):
                 self.pairs.append((b, s))
 
-        # Common normalization: [0,255]→[0,1]→[-1,1]
+        # normalization: [0,255]→[0,1]→[-1,1]
         self.to_tensor = T.Compose([
             T.ToTensor(),
             T.Normalize(mean=[0.5]*3, std=[0.5]*3),
@@ -43,11 +42,9 @@ class GoProDataset(Dataset):
         ])
 
     def __len__(self):
-        # Total samples = number of images × crops_per
         return len(self.pairs) * self.crops_per
 
     def __getitem__(self, idx):
-        # Determine which image pair
         pair_idx = idx // self.crops_per
         b_path, s_path = self.pairs[pair_idx]
 
@@ -56,7 +53,6 @@ class GoProDataset(Dataset):
         sharp = Image.open(s_path).convert('RGB')
 
         if self.mode == 'train':
-            # Random crop both images
             i, j, h, w = T.RandomCrop.get_params(
                 blur, (self.crop_size, self.crop_size)
             )
@@ -65,10 +61,8 @@ class GoProDataset(Dataset):
             blur_t  = self.to_tensor(blur)
             sharp_t = self.to_tensor(sharp)
         else:
-            # Resize both to exact crop_size
             blur_t  = self.test_transform(blur)
             sharp_t = self.test_transform(sharp)
 
-        # Also return the filename for saving outputs
         fname = os.path.basename(b_path)
         return blur_t, sharp_t, fname

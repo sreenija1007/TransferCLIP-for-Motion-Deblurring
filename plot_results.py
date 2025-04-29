@@ -2,9 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # ── Load metrics ──────────────────────────────────────────────────
-# CLIP-guided metrics (from test_deblur.py output)
 clip_df    = pd.read_csv('results/deblur_test/detailed_metrics.csv')
-# Baseline metrics (RL and Wiener)
 base_df    = pd.read_csv('results/baseline_unsharp_wiener_metrics.csv')
 
 # ── Compute average per method ────────────────────────────────────

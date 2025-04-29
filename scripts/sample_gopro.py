@@ -18,7 +18,6 @@ def sample_images(source_dir, dest_dir, num_images, seed):
     os.makedirs(out_blur_dir, exist_ok=True)
     os.makedirs(out_sharp_dir, exist_ok=True)
 
-    #remove old files
     for file_name in os.listdir(out_blur_dir):
         file_path = os.path.join(out_blur_dir, file_name)
         if os.path.isfile(file_path):
@@ -35,7 +34,6 @@ def sample_images(source_dir, dest_dir, num_images, seed):
 
     print(f"✅ Done - {num_images} blur/sharp pairs in {dest_dir}")
 
-# --- Main execution ---
 
 if __name__ == "__main__":
     gopro_sampled_dir = "data/GoPro_sampled"
