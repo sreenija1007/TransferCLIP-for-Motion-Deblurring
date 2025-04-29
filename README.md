@@ -122,14 +122,5 @@ See `results/` for qualitative galleries and comparison plots.
 ## License
 This project is licensed under the MIT License—see [LICENSE](LICENSE) for details.
 
-## Citation
-If you use this code, please cite:
-```bibtex
-@inproceedings{kanugonda2025transferclip,
-  title={TransferCLIP for Generalizable Motion Deblurring},
-  author={Kanugonda, Sreenija},
-  year={2025},
-  booktitle={Conference on Computer Vision and Pattern Recognition (CVPR) Workshops}
-}
-```
+
 
